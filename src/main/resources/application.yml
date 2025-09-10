@@ -1,16 +1,26 @@
 spring:
-  application:
-    name: Kafka
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
-      group-id: my-group
+      group-id: demo-group
       auto-offset-reset: earliest
+      enable-auto-commit: false
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      # Убираем transaction-id-prefix чтобы избежать ошибок
+      properties:
+        delivery.timeout.ms: 3000
+        request.timeout.ms: 3000
+        retry.backoff.ms: 1000
+
+kafka:
+  topics:
+    user-events: user-events
+    orders: orders
+    payments: payments
 
 server:
   port: 8081
