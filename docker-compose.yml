@@ -17,7 +17,7 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true" # Автоматическое создание топиков
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
@@ -29,3 +29,18 @@ services:
       KAFKA_CLUSTERS_0_ZOOKEEPER_CONNECT: zookeeper:2181
     depends_on:
       - kafka
+
+  # Создатель топиков (опционально)
+  kafka-topics-creator:
+    image: confluentinc/cp-kafka:7.3.0
+    depends_on:
+      - kafka
+    command: >
+      bash -c "
+      sleep 10 &&
+      kafka-topics --create --topic user-events --partitions 3 --replication-factor 1 --bootstrap-server kafka:9092 &&
+      kafka-topics --create --topic orders --partitions 3 --replication-factor 1 --bootstrap-server kafka:9092 &&
+      kafka-topics --create --topic payments --partitions 3 --replication-factor 1 --bootstrap-server kafka:9092 &&
+      echo 'Topics created successfully'
+      "
+    restart: on-failure
